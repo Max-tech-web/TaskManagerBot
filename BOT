@@ -1,0 +1,91 @@
+class Task:
+    def __init__(self, title):
+        self.title = title
+        #self.done = False
+
+    def __repr__(self):
+        return self.title
+
+    def __str__(self):
+        return self.title
+
+class TaskManager:
+    def __init__(self):
+        self.tasks = []
+
+    def addTask(self, title):
+        task = Task(title)
+        self.tasks.append(task)
+        return f"Task {task} added successfully"
+
+    def removeTask(self, title):
+        title = title.strip().lower()
+
+        for task in self.tasks:
+            if task.title.strip().lower() == title:
+                self.tasks.remove(task)
+                print(f"Task {title} removed successfully")
+                return
+
+
+    def viewTasks(self):
+        if len(self.tasks) == 0:
+            return "No tasks added, list is empty"
+        else:
+            print("Your to-do list is: ")
+            return f"{self.tasks}"
+
+class Bot(TaskManager):
+    def __init__(self, name, patterns=None, default_reply="I cannot answer for now."):
+        super().__init__()
+        self.name = name
+        self.patterns = patterns or {}
+        self.default_reply = default_reply
+
+    def normalize(self, text: str) -> str:
+        return text.lower().strip()
+
+    def get_reply(self, user_message: str) -> str:
+        normalized = self.normalize(user_message)        # calling func normalize on what user inputs
+
+        for pattern, answer in self.patterns.items():
+            if pattern in normalized:
+                return answer.format(name=self.name)     # searching key(pattern) = answer in dict
+
+    def sayHi(self):
+        return f"{self.name} says hi, Im a taskmanager bot, how can i help you?"
+
+
+
+bot = Bot("Null",
+          patterns = {
+              "hello": "hello, my name is {name}",
+              "what can you do": "I can add your tasks to form a list or delete them.",
+              "how can i manage my tasks": "type a number of your task and then task itself",
+              "how to view my list": "type view tasks to see the list",
+              "how i delete task from my list": "type remove task from my list",
+          },
+          default_reply="I dont understand")
+
+print(bot.sayHi())
+#print(bot.addTask("task 1"))
+#print(bot.viewTasks())
+while True:
+
+
+    user_message = input()
+    if user_message == "exit":
+        print("Goodby dear user!")
+        break
+    elif user_message.lower() in bot.patterns:
+        print(bot.get_reply(user_message))
+    elif user_message.lower() == "view tasks":
+        print(bot.viewTasks())
+    elif user_message.lower() == "add task":
+        user_task = input("type your task: ")
+        print(bot.addTask(user_task))
+    elif user_message.lower() == "remove task":
+        user_task_delete = input("type your task: ")
+        print(bot.removeTask(user_task_delete))
+    else:
+        print(bot.default_reply)
